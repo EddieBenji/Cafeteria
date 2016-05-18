@@ -5,6 +5,7 @@
  */
 package Interfaz;
 
+import Daos.DaoCompra;
 import Daos.DaoOrden;
 import Principal.Orden;
 import Principal.Producto;
@@ -22,29 +23,48 @@ import javax.swing.JOptionPane;
 public class CrearOrden extends javax.swing.JFrame {
 
     private TablaMenu menuB;
+    private Orden ordenParaEditar;
 
     //Los productos son aquellos que aparecerán en la tabla de menú.
     //Los productos ordenados, son aquellos que aparecerán en la segunda tabla
     //(La de la derecha). 
-    private ArrayList<Producto> productos, productosOrdenados;
+    private ArrayList<Producto> productosOrdenados;
 
     //Dao que se usará para guardar los productos ordenados:
     private DaoOrden daoOrden;
+    private DaoCompra daoCompra;
 
-    /**
-     * Creates new form CrearOrden
-     */
-    public CrearOrden() {
-        initComponents();
-        productos = new ArrayList<>();
-        productosOrdenados = new ArrayList<>();
-
+    private void inicializarVentana() {
         try {
+            //Objetos para el manejo de la BD:
+            this.daoOrden = new DaoOrden();
+            this.daoCompra = new DaoCompra();
+
+            //Objetos para el manejo de la interfaz:
+            productosOrdenados = new ArrayList<>();
             menuB = new TablaMenu();
             menuB.inicializarTabla(this.tablaMenu);
+
         } catch (SQLException | ClassNotFoundException ex) {
-            Logger.getLogger(VerOrdenes.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(CrearOrden.class.getName()).log(Level.SEVERE, null, ex);
         }
+    }
+
+    public CrearOrden() {
+        initComponents();
+        this.setLocationRelativeTo(null);
+        this.inicializarVentana();
+    }
+
+    public void setProductosOrdenados(ArrayList<Producto> productosOrdenados) {
+        this.productosOrdenados = productosOrdenados;
+    }
+
+    public void setOrdenParaEditar(Orden ordenParaEditar) {
+        this.ordenParaEditar = ordenParaEditar;
+        this.menuB.llenarTablaProductosOrdenados(this.tablaOrdenActual1,
+                ordenParaEditar.getListaProductos());
+        this.productosOrdenados = ordenParaEditar.getListaProductos();
     }
 
     /**
@@ -211,34 +231,46 @@ public class CrearOrden extends javax.swing.JFrame {
         this.menuB.llenarTablaProductosOrdenados(this.tablaOrdenActual1, productosOrdenados);
     }//GEN-LAST:event_btnAgregarAOrdenActionPerformed
 
-    
-    private void abrirVentanaDeDetalleDeLaOrden(Orden orden){
+    private void abrirVentanaDeDetalleDeLaOrden(Orden orden) {
         VerOrden2 v = new VerOrden2();
         v.setOrden(orden);
         v.setVisible(true);
         v.initView();
         this.dispose();
     }
-    
+
     private void btnGuardarOrdenActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnGuardarOrdenActionPerformed
         try {
-            //Debemos agarrar a los productos ordenados:
-            this.daoOrden = new DaoOrden();
-            //int statusOrden, ArrayList<Producto> listaProductos
-
-            if (!productosOrdenados.isEmpty()) {
+            if (this.ordenParaEditar != null) {
+                this.daoCompra.eliminarProductosDeLaCompra(ordenParaEditar);
+                this.ordenParaEditar.setListaProductos(productosOrdenados);
+                if (!this.ordenParaEditar.getListaProductos().isEmpty()) {
+                    this.daoOrden.actualizarPrecioTotal(ordenParaEditar);
+                    this.daoOrden.insertarProductosDeOrden(ordenParaEditar);
+                    this.abrirVentanaDeDetalleDeLaOrden(ordenParaEditar);
+                } else {
+                    mostrarMensajeDeError();
+                }
+            } else if (!productosOrdenados.isEmpty()) {
+                //Debemos agarrar a los productos ordenados:
                 //seteamos la orden creada:
                 Orden orden = new Orden("EN CURSO", productosOrdenados);
                 this.daoOrden.setOrden(orden);
                 this.daoOrden.insertarEnOrden();
                 this.abrirVentanaDeDetalleDeLaOrden(orden);
             } else {
-                JOptionPane.showMessageDialog(rootPane, "Debes seleccionar productos para guardar");
+                mostrarMensajeDeError();
             }
-        } catch (SQLException | ClassNotFoundException ex) {
+
+        } catch (SQLException ex) {
             Logger.getLogger(CrearOrden.class.getName()).log(Level.SEVERE, null, ex);
         }
     }//GEN-LAST:event_btnGuardarOrdenActionPerformed
+
+    private void mostrarMensajeDeError() {
+        JOptionPane.showMessageDialog(rootPane, "Debes seleccionar productos para guardar");
+
+    }
 
     /**
      * @param args the command line arguments

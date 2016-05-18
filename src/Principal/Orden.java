@@ -5,6 +5,8 @@
  */
 package Principal;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 
@@ -26,6 +28,21 @@ public class Orden {
         this.precioTotal = 0;
         //la fecha de compra es el momento en que se hace la orden:
         fechaCompra = new Date();
+    }
+
+    public Orden(int numeroOrden, String statusOden, Date fechaCompra, double precioTotal) {
+        this.numeroOrden = numeroOrden;
+        this.statusOrden = statusOden;
+        this.fechaCompra = fechaCompra;
+        this.precioTotal = precioTotal;
+    }
+
+    public Orden(int numeroOrden, String statusOden, String fechaCompra, double precioTotal) throws ParseException {
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+        this.fechaCompra = formatter.parse(fechaCompra);
+        this.numeroOrden = numeroOrden;
+        this.statusOrden = statusOden;
+        this.precioTotal = precioTotal;
     }
 
     //Getters
@@ -64,8 +81,9 @@ public class Orden {
 
     //Método
     public double calcularCostoTotal() {
+        precioTotal = 0;
         for (Producto producto : listaProductos) {
-            precioTotal += producto.getPrecio() * producto.getCantidadProducto();
+            precioTotal += producto.getPrecio();
         }
         return precioTotal;
     }

@@ -5,19 +5,48 @@
  */
 package Interfaz;
 
+import Daos.DaoCompra;
+import Daos.DaoOrden;
+import Principal.Orden;
+import Tablas.TablaVerOrdenes;
+import java.sql.SQLException;
+import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.swing.JOptionPane;
+
 /**
  *
  * @author Joaquin Martinez
  */
 public class VerOrdenes extends javax.swing.JFrame {
 
+    private DaoOrden daoOrden;
+    private DaoCompra daoCompra;
+    private ArrayList<Orden> ordenes;
+    private TablaVerOrdenes tvo;
 
+    private Orden ordenSeleccionada;
+
+    private VerOrden2 vistaDetalleOrden;
 
     /**
      * Creates new form Prueba
      */
     public VerOrdenes() {
-        initComponents();
+        try {
+            initComponents();
+            this.setLocationRelativeTo(null);
+            vistaDetalleOrden = new VerOrden2();
+            tvo = new TablaVerOrdenes();
+            daoOrden = new DaoOrden();
+            daoCompra = new DaoCompra();
+            ordenes = daoOrden.obtenerTodas();
+            tvo.llenarTablaProductosOrdenados(jTable1, ordenes);
+        } catch (SQLException | ClassNotFoundException ex) {
+            Logger.getLogger(VerOrdenes.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
     /**
@@ -32,10 +61,11 @@ public class VerOrdenes extends javax.swing.JFrame {
         jPanel1 = new javax.swing.JPanel();
         btnVolverMenu = new javax.swing.JButton();
         btnVerDatosOrden = new javax.swing.JButton();
-        jButton2 = new javax.swing.JButton();
-        jButton3 = new javax.swing.JButton();
+        btnCancelar = new javax.swing.JButton();
+        btnPagar = new javax.swing.JButton();
         jScrollPane1 = new javax.swing.JScrollPane();
         jTable1 = new javax.swing.JTable();
+        btnEditarOrden = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -46,16 +76,26 @@ public class VerOrdenes extends javax.swing.JFrame {
             }
         });
 
-        btnVerDatosOrden.setText("Ver Orden");
+        btnVerDatosOrden.setText("Ver orden");
         btnVerDatosOrden.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btnVerDatosOrdenActionPerformed(evt);
             }
         });
 
-        jButton2.setText("Cancelar");
+        btnCancelar.setText("Cancelar");
+        btnCancelar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnCancelarActionPerformed(evt);
+            }
+        });
 
-        jButton3.setText("Pagar");
+        btnPagar.setText("Pagar");
+        btnPagar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnPagarActionPerformed(evt);
+            }
+        });
 
         jTable1.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -65,7 +105,7 @@ public class VerOrdenes extends javax.swing.JFrame {
                 {null, null, null, null}
             },
             new String [] {
-                "Número de la orden", "Nombre", "Estado", "Precio total"
+                "Número de la orden", "Estado", "Fecha de compra", "Precio total"
             }
         ) {
             Class[] types = new Class [] {
@@ -85,6 +125,13 @@ public class VerOrdenes extends javax.swing.JFrame {
         });
         jScrollPane1.setViewportView(jTable1);
 
+        btnEditarOrden.setText("Editar orden");
+        btnEditarOrden.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnEditarOrdenActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
@@ -95,13 +142,15 @@ public class VerOrdenes extends javax.swing.JFrame {
                         .addGap(48, 48, 48)
                         .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 670, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addGap(103, 103, 103)
+                        .addGap(69, 69, 69)
+                        .addComponent(btnEditarOrden)
+                        .addGap(38, 38, 38)
                         .addComponent(btnVerDatosOrden)
                         .addGap(18, 18, 18)
-                        .addComponent(jButton2)
+                        .addComponent(btnCancelar)
                         .addGap(18, 18, 18)
-                        .addComponent(jButton3)
-                        .addGap(143, 143, 143)
+                        .addComponent(btnPagar)
+                        .addGap(66, 66, 66)
                         .addComponent(btnVolverMenu)))
                 .addContainerGap(98, Short.MAX_VALUE))
         );
@@ -113,9 +162,10 @@ public class VerOrdenes extends javax.swing.JFrame {
                 .addGap(95, 95, 95)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(btnVerDatosOrden)
-                    .addComponent(jButton2)
-                    .addComponent(jButton3)
-                    .addComponent(btnVolverMenu))
+                    .addComponent(btnCancelar)
+                    .addComponent(btnPagar)
+                    .addComponent(btnVolverMenu)
+                    .addComponent(btnEditarOrden))
                 .addContainerGap(108, Short.MAX_VALUE))
         );
 
@@ -140,18 +190,80 @@ public class VerOrdenes extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnVerDatosOrdenActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnVerDatosOrdenActionPerformed
-        // TODO add your handling code here:
-
-        VerOrden2 verEstado = new VerOrden2();
-        verEstado.setVisible(true);
+        try {
+            ordenSeleccionada = this.obtenerOrdenSeleccionada();
+            this.mostrarVistaDeDetalleDeLaOrden();
+        } catch (ParseException | SQLException ex) {
+            Logger.getLogger(VerOrdenes.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }//GEN-LAST:event_btnVerDatosOrdenActionPerformed
 
     private void btnVolverMenuActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnVolverMenuActionPerformed
-        // TODO add your handling code here:
         MenuPrincipal volverMenu = new MenuPrincipal();
         volverMenu.setVisible(true);
         dispose();
     }//GEN-LAST:event_btnVolverMenuActionPerformed
+
+    private Orden obtenerOrdenSeleccionada() throws ParseException, ArrayIndexOutOfBoundsException {
+        //int numeroOrden, String statusOden, Date fechaCompra, double precioTotal
+        int id = Integer.valueOf(this.jTable1.getModel().getValueAt(this.jTable1.getSelectedRow(), 0).toString());
+        String estado = this.jTable1.getModel().getValueAt(this.jTable1.getSelectedRow(), 1).toString();
+        String fechaCompra = this.jTable1.getModel().getValueAt(this.jTable1.getSelectedRow(), 2).toString();
+        double precio = Double.valueOf(this.jTable1.getModel().getValueAt(this.jTable1.getSelectedRow(), 3).toString());
+        return new Orden(id, estado, fechaCompra, precio);
+    }
+
+    private void mostrarVistaDeDetalleDeLaOrden() throws SQLException {
+        daoCompra.cargarProductosDeLaOrden(ordenSeleccionada);
+        vistaDetalleOrden.setOrden(ordenSeleccionada);
+        vistaDetalleOrden.initView();
+        vistaDetalleOrden.setVisible(true);
+        this.dispose();
+    }
+
+    private void pagarOCancelarOrden(boolean pagar) {
+        try {
+            ordenSeleccionada = this.obtenerOrdenSeleccionada();
+            if (ordenSeleccionada.getStatusOrden().equalsIgnoreCase("EN CURSO")) {
+                ordenSeleccionada.setStatusOrden(pagar ? "PAGADA" : "CANCELADA");
+                daoOrden.setOrden(ordenSeleccionada);
+                daoOrden.actualizarEstadoDeLaOrden();
+                this.mostrarVistaDeDetalleDeLaOrden();
+
+            } else {
+                JOptionPane.showMessageDialog(null, "Para pagar o cancelar una orden, debe tener como estado EN CURSO");
+            }
+
+        } catch (SQLException | ParseException ex) {
+            Logger.getLogger(VerOrdenes.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
+    private void btnPagarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnPagarActionPerformed
+        this.pagarOCancelarOrden(true);
+    }//GEN-LAST:event_btnPagarActionPerformed
+
+    private void btnCancelarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCancelarActionPerformed
+        this.pagarOCancelarOrden(false);
+    }//GEN-LAST:event_btnCancelarActionPerformed
+
+    private void btnEditarOrdenActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEditarOrdenActionPerformed
+        try {
+            this.ordenSeleccionada = this.obtenerOrdenSeleccionada();
+            if (this.ordenSeleccionada.getStatusOrden().equalsIgnoreCase("EN CURSO")) {
+                CrearOrden c = new CrearOrden();
+                c.setVisible(true);
+                this.daoCompra.cargarProductosDeLaOrden(ordenSeleccionada);
+                c.setOrdenParaEditar(ordenSeleccionada);
+                this.dispose();
+            } else {
+                JOptionPane.showMessageDialog(null, "Para editar una orden, debe tener como estado EN CURSO");
+            }
+
+        } catch (ParseException | SQLException ex) {
+            Logger.getLogger(VerOrdenes.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }//GEN-LAST:event_btnEditarOrdenActionPerformed
 
     /**
      * @param args the command line arguments
@@ -190,10 +302,11 @@ public class VerOrdenes extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton btnCancelar;
+    private javax.swing.JButton btnEditarOrden;
+    private javax.swing.JButton btnPagar;
     private javax.swing.JButton btnVerDatosOrden;
     private javax.swing.JButton btnVolverMenu;
-    private javax.swing.JButton jButton2;
-    private javax.swing.JButton jButton3;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTable jTable1;
