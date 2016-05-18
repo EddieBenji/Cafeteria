@@ -85,14 +85,17 @@ public class DaoOrden extends DaoGeneral {
         String insertTableSQL = "INSERT INTO compra"
                 + "(idMenu, idEstadoOrden, idOrden) VALUES"
                 + "(?,?,?)";
+        double precioTotal = 0.0;
         for (Producto producto : orden.getListaProductos()) {
             this.preparedStatement = this.getConnection().prepareStatement(insertTableSQL);
             this.preparedStatement.setInt(indiceParaIdMenu, producto.getIdProducto());
             this.preparedStatement.setInt(indiceParaTipoOrden, this.orden.getStatusOrden());
             this.preparedStatement.setInt(indiceParaIdOrden, this.orden.getNumeroOrden());
+            precioTotal += producto.getPrecio();
             this.preparedStatement.executeUpdate();
             this.preparedStatement.close();
         }
+        orden.setPrecioTotal(precioTotal);
         this.getConnection().close();
     }
 }

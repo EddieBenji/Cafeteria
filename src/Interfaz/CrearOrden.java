@@ -58,7 +58,7 @@ public class CrearOrden extends javax.swing.JFrame {
 
         btnAgregarAOrden = new javax.swing.JButton();
         btnEliminar = new javax.swing.JButton();
-        jButton3 = new javax.swing.JButton();
+        btnGuardarOrden = new javax.swing.JButton();
         btnVolverMenu = new javax.swing.JButton();
         jLabel1 = new javax.swing.JLabel();
         jScrollPane6 = new javax.swing.JScrollPane();
@@ -83,10 +83,10 @@ public class CrearOrden extends javax.swing.JFrame {
             }
         });
 
-        jButton3.setText("Guardar orden");
-        jButton3.addActionListener(new java.awt.event.ActionListener() {
+        btnGuardarOrden.setText("Guardar orden");
+        btnGuardarOrden.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton3ActionPerformed(evt);
+                btnGuardarOrdenActionPerformed(evt);
             }
         });
 
@@ -147,7 +147,7 @@ public class CrearOrden extends javax.swing.JFrame {
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                         .addComponent(btnEliminar)
                         .addGap(51, 51, 51)
-                        .addComponent(jButton3)
+                        .addComponent(btnGuardarOrden)
                         .addGap(117, 117, 117))))
             .addGroup(layout.createSequentialGroup()
                 .addGap(20, 20, 20)
@@ -169,7 +169,7 @@ public class CrearOrden extends javax.swing.JFrame {
                 .addComponent(jScrollPane6, javax.swing.GroupLayout.PREFERRED_SIZE, 310, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jButton3)
+                    .addComponent(btnGuardarOrden)
                     .addComponent(btnEliminar)
                     .addComponent(btnAgregarAOrden))
                 .addGap(35, 35, 35)
@@ -194,6 +194,8 @@ public class CrearOrden extends javax.swing.JFrame {
 
     private void btnEliminarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEliminarActionPerformed
         // TODO add your handling code here:
+        this.productosOrdenados.remove(this.tablaOrdenActual1.getSelectedRow());
+        this.menuB.llenarTablaProductosOrdenados(this.tablaOrdenActual1, productosOrdenados);
 
     }//GEN-LAST:event_btnEliminarActionPerformed
 
@@ -211,7 +213,16 @@ public class CrearOrden extends javax.swing.JFrame {
 
     }//GEN-LAST:event_btnAgregarAOrdenActionPerformed
 
-    private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
+    
+    private void abrirVentanaDeDetalleDeLaOrden(Orden orden){
+        VerOrden2 v = new VerOrden2();
+        v.setOrden(orden);
+        v.setVisible(true);
+        v.initView();
+        this.dispose();
+    }
+    
+    private void btnGuardarOrdenActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnGuardarOrdenActionPerformed
         try {
             //Debemos agarrar a los productos ordenados:
             this.daoOrden = new DaoOrden();
@@ -222,14 +233,14 @@ public class CrearOrden extends javax.swing.JFrame {
                 Orden orden = new Orden(1, productosOrdenados);
                 this.daoOrden.setOrden(orden);
                 this.daoOrden.insertarEnOrden();
-                
+                this.abrirVentanaDeDetalleDeLaOrden(orden);
             } else {
                 JOptionPane.showMessageDialog(rootPane, "Debes seleccionar productos para guardar");
             }
         } catch (SQLException | ClassNotFoundException ex) {
             Logger.getLogger(CrearOrden.class.getName()).log(Level.SEVERE, null, ex);
         }
-    }//GEN-LAST:event_jButton3ActionPerformed
+    }//GEN-LAST:event_btnGuardarOrdenActionPerformed
 
     /**
      * @param args the command line arguments
@@ -269,8 +280,8 @@ public class CrearOrden extends javax.swing.JFrame {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnAgregarAOrden;
     private javax.swing.JButton btnEliminar;
+    private javax.swing.JButton btnGuardarOrden;
     private javax.swing.JButton btnVolverMenu;
-    private javax.swing.JButton jButton3;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JScrollPane jScrollPane6;
