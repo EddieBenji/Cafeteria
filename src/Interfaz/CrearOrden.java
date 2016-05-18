@@ -193,7 +193,7 @@ public class CrearOrden extends javax.swing.JFrame {
     }//GEN-LAST:event_btnVolverMenuActionPerformed
 
     private void btnEliminarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEliminarActionPerformed
-        // TODO add your handling code here:
+        // Eliminamos la info del renglón seleccionado:
         this.productosOrdenados.remove(this.tablaOrdenActual1.getSelectedRow());
         this.menuB.llenarTablaProductosOrdenados(this.tablaOrdenActual1, productosOrdenados);
 
@@ -208,9 +208,7 @@ public class CrearOrden extends javax.swing.JFrame {
         double precio = Double.valueOf(this.tablaMenu.getModel().getValueAt(this.tablaMenu.getSelectedRow(), 3).toString());
 
         this.productosOrdenados.add(new Producto(id, nombreProducto, clasificacion, precio));
-
         this.menuB.llenarTablaProductosOrdenados(this.tablaOrdenActual1, productosOrdenados);
-
     }//GEN-LAST:event_btnAgregarAOrdenActionPerformed
 
     
@@ -230,7 +228,7 @@ public class CrearOrden extends javax.swing.JFrame {
 
             if (!productosOrdenados.isEmpty()) {
                 //seteamos la orden creada:
-                Orden orden = new Orden(1, productosOrdenados);
+                Orden orden = new Orden("EN CURSO", productosOrdenados);
                 this.daoOrden.setOrden(orden);
                 this.daoOrden.insertarEnOrden();
                 this.abrirVentanaDeDetalleDeLaOrden(orden);

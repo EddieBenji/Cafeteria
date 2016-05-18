@@ -27,8 +27,9 @@ public class DaoOrden extends DaoGeneral {
     //Índices
     int indiceParaIdMenu = 1,
             indiceParaTipoOrden = 2,
-            indiceParaIdOrden = 3,
-            indiceParaFechaDeCompra = 1;
+            indiceParaIdOrden = 2,
+            indiceParaFechaDeCompra = 1,
+            indiceParaEstadoOrden=2;
 
     public DaoOrden() throws SQLException, ClassNotFoundException {
         super();
@@ -66,11 +67,12 @@ public class DaoOrden extends DaoGeneral {
         //Solo inserta, si hay productos registrados.
         if (this.orden.getListaProductos() != null || !this.orden.getListaProductos().isEmpty()) {
             String insertTableSQL = "INSERT INTO orden"
-                    + "(fechaCompra) VALUES"
-                    + "(?)";
+                    + "(fechaCompra, estado) VALUES"
+                    + "(?,?)";
             java.sql.Date sqlDate = new java.sql.Date(this.orden.getFechaCompra().getTime());
             this.preparedStatement = this.getConnection().prepareStatement(insertTableSQL);
             this.preparedStatement.setDate(indiceParaFechaDeCompra, sqlDate);
+            this.preparedStatement.setString(indiceParaEstadoOrden, orden.getStatusOrden());
             this.preparedStatement.executeUpdate();
             this.preparedStatement.close();
 
@@ -83,13 +85,12 @@ public class DaoOrden extends DaoGeneral {
 
     private void insertarProductosDeOrden(Orden orden) throws SQLException {
         String insertTableSQL = "INSERT INTO compra"
-                + "(idMenu, idEstadoOrden, idOrden) VALUES"
-                + "(?,?,?)";
+                + "(idMenu, idOrden) VALUES"
+                + "(?,?)";
         double precioTotal = 0.0;
         for (Producto producto : orden.getListaProductos()) {
             this.preparedStatement = this.getConnection().prepareStatement(insertTableSQL);
             this.preparedStatement.setInt(indiceParaIdMenu, producto.getIdProducto());
-            this.preparedStatement.setInt(indiceParaTipoOrden, this.orden.getStatusOrden());
             this.preparedStatement.setInt(indiceParaIdOrden, this.orden.getNumeroOrden());
             precioTotal += producto.getPrecio();
             this.preparedStatement.executeUpdate();

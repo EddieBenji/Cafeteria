@@ -15,12 +15,12 @@ import java.util.Date;
 public class Orden {
 
     private int numeroOrden;//Es el id que se guardará en la BD.
-    private int statusOrden;
+    private String statusOrden;
     private ArrayList<Producto> listaProductos;
     private double precioTotal;
     private Date fechaCompra;
 
-    public Orden(int statusOrden, ArrayList<Producto> listaProductos) {
+    public Orden(String statusOrden, ArrayList<Producto> listaProductos) {
         this.statusOrden = statusOrden;
         this.listaProductos = listaProductos;
         this.precioTotal = 0;
@@ -29,11 +29,11 @@ public class Orden {
     }
 
     //Getters
-    public int getStatusOrden() {
+    public String getStatusOrden() {
         return statusOrden;
     }
 
-    public void setStatusOrden(int statusOrden) {
+    public void setStatusOrden(String statusOrden) {
         this.statusOrden = statusOrden;
     }
 
