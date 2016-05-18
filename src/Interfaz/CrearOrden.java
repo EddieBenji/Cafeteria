@@ -5,12 +5,16 @@
  */
 package Interfaz;
 
+import Daos.DaoCompra;
+import Daos.DaoOrden;
+import Principal.Orden;
 import Principal.Producto;
 import Tablas.TablaMenu;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.JOptionPane;
 
 /**
  *
@@ -19,26 +23,48 @@ import java.util.logging.Logger;
 public class CrearOrden extends javax.swing.JFrame {
 
     private TablaMenu menuB;
+    private Orden ordenParaEditar;
 
     //Los productos son aquellos que aparecerán en la tabla de menú.
     //Los productos ordenados, son aquellos que aparecerán en la segunda tabla
     //(La de la derecha). 
-    private ArrayList<Producto> productos, productosOrdenados;
+    private ArrayList<Producto> productosOrdenados;
 
-    /**
-     * Creates new form CrearOrden
-     */
-    public CrearOrden() {
-        initComponents();
-        productos = new ArrayList<>();
-        productosOrdenados = new ArrayList<>();
+    //Dao que se usará para guardar los productos ordenados:
+    private DaoOrden daoOrden;
+    private DaoCompra daoCompra;
 
+    private void inicializarVentana() {
         try {
+            //Objetos para el manejo de la BD:
+            this.daoOrden = new DaoOrden();
+            this.daoCompra = new DaoCompra();
+
+            //Objetos para el manejo de la interfaz:
+            productosOrdenados = new ArrayList<>();
             menuB = new TablaMenu();
             menuB.inicializarTabla(this.tablaMenu);
+
         } catch (SQLException | ClassNotFoundException ex) {
-            Logger.getLogger(VerOrdenes.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(CrearOrden.class.getName()).log(Level.SEVERE, null, ex);
         }
+    }
+
+    public CrearOrden() {
+        initComponents();
+        this.setLocationRelativeTo(null);
+        this.inicializarVentana();
+    }
+
+    public void setProductosOrdenados(ArrayList<Producto> productosOrdenados) {
+        this.productosOrdenados = productosOrdenados;
+    }
+
+    public void setOrdenParaEditar(Orden ordenParaEditar) {
+        this.ordenParaEditar = ordenParaEditar;
+        this.menuB.llenarTablaProductosOrdenados(this.tablaOrdenActual1,
+                ordenParaEditar.getListaProductos());
+        this.productosOrdenados = ordenParaEditar.getListaProductos();
     }
 
     /**
@@ -52,7 +78,7 @@ public class CrearOrden extends javax.swing.JFrame {
 
         btnAgregarAOrden = new javax.swing.JButton();
         btnEliminar = new javax.swing.JButton();
-        jButton3 = new javax.swing.JButton();
+        btnGuardarOrden = new javax.swing.JButton();
         btnVolverMenu = new javax.swing.JButton();
         jLabel1 = new javax.swing.JLabel();
         jScrollPane6 = new javax.swing.JScrollPane();
@@ -77,7 +103,12 @@ public class CrearOrden extends javax.swing.JFrame {
             }
         });
 
-        jButton3.setText("Guardar orden");
+        btnGuardarOrden.setText("Guardar orden");
+        btnGuardarOrden.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnGuardarOrdenActionPerformed(evt);
+            }
+        });
 
         btnVolverMenu.setText("Volver al menú principal");
         btnVolverMenu.addActionListener(new java.awt.event.ActionListener() {
@@ -136,7 +167,7 @@ public class CrearOrden extends javax.swing.JFrame {
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                         .addComponent(btnEliminar)
                         .addGap(51, 51, 51)
-                        .addComponent(jButton3)
+                        .addComponent(btnGuardarOrden)
                         .addGap(117, 117, 117))))
             .addGroup(layout.createSequentialGroup()
                 .addGap(20, 20, 20)
@@ -158,7 +189,7 @@ public class CrearOrden extends javax.swing.JFrame {
                 .addComponent(jScrollPane6, javax.swing.GroupLayout.PREFERRED_SIZE, 310, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jButton3)
+                    .addComponent(btnGuardarOrden)
                     .addComponent(btnEliminar)
                     .addComponent(btnAgregarAOrden))
                 .addGap(35, 35, 35)
@@ -182,7 +213,9 @@ public class CrearOrden extends javax.swing.JFrame {
     }//GEN-LAST:event_btnVolverMenuActionPerformed
 
     private void btnEliminarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEliminarActionPerformed
-        // TODO add your handling code here:
+        // Eliminamos la info del renglón seleccionado:
+        this.productosOrdenados.remove(this.tablaOrdenActual1.getSelectedRow());
+        this.menuB.llenarTablaProductosOrdenados(this.tablaOrdenActual1, productosOrdenados);
 
     }//GEN-LAST:event_btnEliminarActionPerformed
 
@@ -195,10 +228,49 @@ public class CrearOrden extends javax.swing.JFrame {
         double precio = Double.valueOf(this.tablaMenu.getModel().getValueAt(this.tablaMenu.getSelectedRow(), 3).toString());
 
         this.productosOrdenados.add(new Producto(id, nombreProducto, clasificacion, precio));
-        
         this.menuB.llenarTablaProductosOrdenados(this.tablaOrdenActual1, productosOrdenados);
-
     }//GEN-LAST:event_btnAgregarAOrdenActionPerformed
+
+    private void abrirVentanaDeDetalleDeLaOrden(Orden orden) {
+        VerOrden2 v = new VerOrden2();
+        v.setOrden(orden);
+        v.setVisible(true);
+        v.initView();
+        this.dispose();
+    }
+
+    private void btnGuardarOrdenActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnGuardarOrdenActionPerformed
+        try {
+            if (this.ordenParaEditar != null) {
+                this.daoCompra.eliminarProductosDeLaCompra(ordenParaEditar);
+                this.ordenParaEditar.setListaProductos(productosOrdenados);
+                if (!this.ordenParaEditar.getListaProductos().isEmpty()) {
+                    this.daoOrden.actualizarPrecioTotal(ordenParaEditar);
+                    this.daoOrden.insertarProductosDeOrden(ordenParaEditar);
+                    this.abrirVentanaDeDetalleDeLaOrden(ordenParaEditar);
+                } else {
+                    mostrarMensajeDeError();
+                }
+            } else if (!productosOrdenados.isEmpty()) {
+                //Debemos agarrar a los productos ordenados:
+                //seteamos la orden creada:
+                Orden orden = new Orden("EN CURSO", productosOrdenados);
+                this.daoOrden.setOrden(orden);
+                this.daoOrden.insertarEnOrden();
+                this.abrirVentanaDeDetalleDeLaOrden(orden);
+            } else {
+                mostrarMensajeDeError();
+            }
+
+        } catch (SQLException ex) {
+            Logger.getLogger(CrearOrden.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }//GEN-LAST:event_btnGuardarOrdenActionPerformed
+
+    private void mostrarMensajeDeError() {
+        JOptionPane.showMessageDialog(rootPane, "Debes seleccionar productos para guardar");
+
+    }
 
     /**
      * @param args the command line arguments
@@ -238,8 +310,8 @@ public class CrearOrden extends javax.swing.JFrame {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnAgregarAOrden;
     private javax.swing.JButton btnEliminar;
+    private javax.swing.JButton btnGuardarOrden;
     private javax.swing.JButton btnVolverMenu;
-    private javax.swing.JButton jButton3;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JScrollPane jScrollPane6;

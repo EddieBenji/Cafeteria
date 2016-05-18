@@ -21,6 +21,7 @@ public class MenuCafeteria extends javax.swing.JFrame {
      */
     public MenuCafeteria() {
         initComponents();
+        this.setLocationRelativeTo(null);
          TablaMenu tm = new TablaMenu();
         try {
             tm.inicializarTabla(jTable1);

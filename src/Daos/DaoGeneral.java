@@ -7,6 +7,7 @@ package Daos;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -26,6 +27,9 @@ public class DaoGeneral {
     Connection connection = null;
     Statement statement = null;
     ResultSet resultSet = null;
+
+    //Para la conexión con la BD:
+    PreparedStatement preparedStatement = null;
 
     public DaoGeneral() throws SQLException, ClassNotFoundException {
         Class.forName(DRIVER);

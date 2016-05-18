@@ -101,11 +101,11 @@ public class TablaMenu {
 
     public void llenarTablaProductosOrdenados(JTable tabla, ArrayList<Producto> productos) {
         //Construimos la tabla:
-        DefaultTableModel nuevoModelo = populateDateInTable(productos);
+        DefaultTableModel nuevoModelo = poblarDatosEnTabla(productos);
         this.establecerModeloJTable(nuevoModelo, tabla);
     }
 
-    private DefaultTableModel populateDateInTable(ArrayList<Producto> productos) {
+    private DefaultTableModel poblarDatosEnTabla(ArrayList<Producto> productos) {
 
         Vector<String> columnNames = new Vector<String>();
         columnNames.add("ID del producto");
