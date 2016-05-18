@@ -5,12 +5,15 @@
  */
 package Interfaz;
 
+import Daos.DaoOrden;
+import Principal.Orden;
 import Principal.Producto;
 import Tablas.TablaMenu;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.JOptionPane;
 
 /**
  *
@@ -24,6 +27,9 @@ public class CrearOrden extends javax.swing.JFrame {
     //Los productos ordenados, son aquellos que aparecerán en la segunda tabla
     //(La de la derecha). 
     private ArrayList<Producto> productos, productosOrdenados;
+
+    //Dao que se usará para guardar los productos ordenados:
+    private DaoOrden daoOrden;
 
     /**
      * Creates new form CrearOrden
@@ -78,6 +84,11 @@ public class CrearOrden extends javax.swing.JFrame {
         });
 
         jButton3.setText("Guardar orden");
+        jButton3.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton3ActionPerformed(evt);
+            }
+        });
 
         btnVolverMenu.setText("Volver al menú principal");
         btnVolverMenu.addActionListener(new java.awt.event.ActionListener() {
@@ -195,10 +206,30 @@ public class CrearOrden extends javax.swing.JFrame {
         double precio = Double.valueOf(this.tablaMenu.getModel().getValueAt(this.tablaMenu.getSelectedRow(), 3).toString());
 
         this.productosOrdenados.add(new Producto(id, nombreProducto, clasificacion, precio));
-        
+
         this.menuB.llenarTablaProductosOrdenados(this.tablaOrdenActual1, productosOrdenados);
 
     }//GEN-LAST:event_btnAgregarAOrdenActionPerformed
+
+    private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
+        try {
+            //Debemos agarrar a los productos ordenados:
+            this.daoOrden = new DaoOrden();
+            //int statusOrden, ArrayList<Producto> listaProductos
+
+            if (!productosOrdenados.isEmpty()) {
+                //seteamos la orden creada:
+                Orden orden = new Orden(1, productosOrdenados);
+                this.daoOrden.setOrden(orden);
+                this.daoOrden.insertarEnOrden();
+                
+            } else {
+                JOptionPane.showMessageDialog(rootPane, "Debes seleccionar productos para guardar");
+            }
+        } catch (SQLException | ClassNotFoundException ex) {
+            Logger.getLogger(CrearOrden.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }//GEN-LAST:event_jButton3ActionPerformed
 
     /**
      * @param args the command line arguments

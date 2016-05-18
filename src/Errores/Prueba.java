@@ -90,9 +90,9 @@ public class Prueba {
         listaProductos.add(new Producto(2, "Torta de quesso", "Es una torta con queso", 15, 2));
 
         Mesero unMesero = new Mesero(1, "Juan", "Perez", "Martinez");
-        Orden unaOrden = new Orden("En curso", listaProductos, unMesero, 1);
+        Orden unaOrden = new Orden(1, listaProductos);
 
-        Nota unaNota = new Nota(unaOrden, unaOrden.calcularCostoTotal(), unaOrden.calcularHoraYFecha());
+        Nota unaNota = new Nota(unaOrden, unaOrden.calcularCostoTotal(), unaOrden.getFechaCompra());
 
     }
 

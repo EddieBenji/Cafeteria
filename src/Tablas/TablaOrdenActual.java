@@ -19,8 +19,11 @@ public class TablaOrdenActual {
     public ArrayList ArregloOrdenActual = new ArrayList();
     
     
-     public void agregarElemento(int idProducto, String nombreProducto, String descripcionProducto, double precio, int cantidadProducto){
-        ArregloOrdenActual.add(new Producto(idProducto, nombreProducto, descripcionProducto, precio, cantidadProducto));
+     public void agregarElemento(int idProducto, String nombreProducto,
+             String descripcionProducto, double precio, int cantidadProducto){
+         
+        ArregloOrdenActual.add(new Producto(idProducto, nombreProducto, 
+                descripcionProducto, precio, cantidadProducto));
         
     }
      public void emliminarElemento(int indice){

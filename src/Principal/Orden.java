@@ -13,78 +13,76 @@ import java.util.Date;
  * @author Joaquin Martinez
  */
 public class Orden {
- 
-    private String statusOrden;
-    private ArrayList<Producto> listaProductos;
-    private Mesero mesero;
-    private int numeroOrden;
-    double precioTotal = 0;
-   
 
-    public Orden(String statusOrden, ArrayList<Producto> listaProductos, Mesero mesero, int numeroOrden) {
+    private int numeroOrden;//Es el id que se guardará en la BD.
+    private int statusOrden;
+    private ArrayList<Producto> listaProductos;
+    private double precioTotal;
+    private Date fechaCompra;
+
+    public Orden(int statusOrden, ArrayList<Producto> listaProductos) {
         this.statusOrden = statusOrden;
         this.listaProductos = listaProductos;
-        this.mesero = mesero;
-        this.numeroOrden = numeroOrden;
+        this.precioTotal = 0;
+        //la fecha de compra es el momento en que se hace la orden:
+        fechaCompra = new Date();
     }
-    
-    //Getters
 
-    public String getStatusOrden() {
+    //Getters
+    public int getStatusOrden() {
         return statusOrden;
+    }
+
+    public void setStatusOrden(int statusOrden) {
+        this.statusOrden = statusOrden;
+    }
+
+    public double getPrecioTotal() {
+        return precioTotal;
+    }
+
+    public void setPrecioTotal(double precioTotal) {
+        this.precioTotal = precioTotal;
     }
 
     public ArrayList<Producto> getListaProductos() {
         return listaProductos;
     }
 
-    public Mesero getMesero() {
-        return mesero;
-    }
-
     public int getNumeroOrden() {
         return numeroOrden;
     }
-    
+
     //Setters
-
-    public void setStatusOrden(String statusOrden) {
-        this.statusOrden = statusOrden;
-    }
-
     public void setListaProductos(ArrayList<Producto> listaProductos) {
         this.listaProductos = listaProductos;
-    }
-
-    public void setMesero(Mesero mesero) {
-        this.mesero = mesero;
     }
 
     public void setNumeroOrden(int numeroOrden) {
         this.numeroOrden = numeroOrden;
     }
-    
-    
+
     //Método
-    
-    public double calcularCostoTotal(){
-        for(int i=0; i<listaProductos.size(); i++){
-            precioTotal = precioTotal + ((listaProductos.get(i).getPrecio()) * (listaProductos.get(i).getCantidadProducto()));
+    public double calcularCostoTotal() {
+        for (Producto producto : listaProductos) {
+            precioTotal += producto.getPrecio() * producto.getCantidadProducto();
         }
         return precioTotal;
     }
-    
-     public Date calcularHoraYFecha(){
-        java.util.Date fecha = new Date();
-        return fecha;
-    }
-    
-    //To string
 
+    public Date getFechaCompra() {
+        return fechaCompra;
+    }
+
+    public void setFechaCompra(Date fechaCompra) {
+        this.fechaCompra = fechaCompra;
+    }
+
+    //To string
     @Override
     public String toString() {
-        return "Orden: " + numeroOrden + "\nLista de Productos\n" + listaProductos + "\nMesero\n" + mesero + "\nPrecioTotal: " + precioTotal;
+        return "Orden: " + numeroOrden
+                + "\nLista de Productos\n" + listaProductos
+                + "\nPrecioTotal: " + precioTotal;
     }
-    
-    
 }
